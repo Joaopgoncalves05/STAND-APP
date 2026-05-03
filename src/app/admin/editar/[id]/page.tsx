@@ -31,7 +31,7 @@ export default async function EditarVeiculo({
     .single()
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-10 font-sans">
+    <div className="p-6 md:p-10 font-sans">
       <div className="max-w-4xl mx-auto">
         <header className="mb-10">
           <h1 className="text-3xl font-black text-slate-900">Editar Viatura</h1>

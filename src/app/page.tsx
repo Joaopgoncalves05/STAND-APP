@@ -1,18 +1,30 @@
+import { getTenant } from '@/utils/tenant'
 import { createClient } from '@/utils/supabase/server'
+import { ModernHome } from '@/components/templates/modern/Home'
+import { NotFoundStand } from '@/components/ui/NotFoundStand'
 
 export default async function Page() {
-  const supabase = await createClient() // Corrigido: adicionado await
+  const stand = await getTenant()
 
-  // Se o erro 2554 persistir no createClient(), 
-  // garante que o teu utils/supabase/server.ts não pede argumentos.
+  if (!stand) {
+    return <NotFoundStand />
+  }
 
-  const { data: todos } = await supabase
-    .from('todos')
-    .select()
+  const supabase = await createClient()
 
-  return (
-    <pre>
-      {JSON.stringify(todos, null, 2)}
-    </pre>
-  )
+  // Buscar carros recentes para a homepage
+  const { data: cars } = await supabase
+    .from('carros')
+    .select('*')
+    .eq('stand_id', stand.id)
+    .or('oculto.eq.false,oculto.is.null')
+    .neq('status', 'negociacao')
+    .order('created_at', { ascending: false })
+    .limit(8)
+
+  // Aqui no futuro poderíamos ter um switch baseando-se no stand.template_name
+  // if (stand.template_name === 'classico') return <ClassicHome ... />
+  // Por agora usamos o template moderno como base
+  
+  return <ModernHome stand={stand} recentCars={cars || []} />
 }
